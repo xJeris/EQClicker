@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enemies>
+  <!-- Zone 1 Enemies -->
+  <enemy id="1" name="Goblin" zone="1" baseXP="1" unlockCost="0" baseTime="30000" baseCost="50" />
+  <enemy id="2" name="Orc" zone="1" baseXP="2" unlockCost="20" baseTime="35000" baseCost="100" />
+  <enemy id="3" name="Troll" zone="1" baseXP="3" unlockCost="30" baseTime="40000" baseCost="150" />
+
+  <!-- Zone 2 Enemies -->
+  <enemy id="1" name="Skeleton" zone="2" baseXP="1" unlockCost="10" baseTime="30000" baseCost="50" />
+  <enemy id="2" name="Zombie" zone="2" baseXP="2" unlockCost="20" baseTime="35000" baseCost="100" />
+  <enemy id="3" name="Vampire" zone="2" baseXP="3" unlockCost="30" baseTime="40000" baseCost="150" />
+</enemies>

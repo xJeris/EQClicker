@@ -1,0 +1,91 @@
+/* Basic reset and layout */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #fafafa;
+    }
+    #app {
+      display: flex;
+      height: 100vh;
+    }
+    /* Sidebar for zones */
+    .sidebar {
+      width: 200px;
+      background: #f4f4f4;
+      padding: 20px;
+      border-right: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    .sidebar h2 {
+      margin-top: 0;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar li {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ddd;
+    }
+    .sidebar li:hover {
+      background: #ddd;
+    }
+    /* Main content area */
+    .main {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .main h2 {
+      margin-top: 0;
+    }
+    /* Enemy container styling */
+    .enemy {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      background: #fff;
+    }
+    .xp-display {
+      width: 80px;
+      font-weight: bold;
+      margin-right: 20px;
+    }
+    .enemy-content {
+      flex: 1;
+    }
+    .enemy-content button {
+      margin-right: 10px;
+      padding: 5px 10px;
+      font-size: 0.9em;
+    }
+    /* Progress bar styling */
+    .progress-container {
+      display: inline-block;
+      height: 20px;
+      width: 200px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      vertical-align: middle;
+      position: relative;
+      margin-top: 10px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #76c7c0;
+      width: 0;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: width 0.1s linear;
+      color: #fff;
+      font-size: 0.8em;
+      line-height: 20px;
+    }
+    
