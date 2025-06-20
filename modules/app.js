@@ -1,17 +1,17 @@
-    let zones = [];       // To hold zones and their enemies after XML parsing
-    let currentZoneIndex = 0;
+let zones = [];       // Array to hold zones and their enemy objects.
+let currentZoneIndex = 0;
 
-    // Load enemy data from the XML file.
+    // Load enemy data from XML (located in data/enemy.xml)
     function loadEnemyData() {
       fetch('data/enemy.xml')
         .then(response => response.text())
         .then(xmlText => {
           const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+          const xmlDoc = parser.parseFromString(xmlText, "application/xml");
           const enemyNodes = xmlDoc.getElementsByTagName("enemy");
           const zoneMap = {};
 
-          // Process each <enemy> node from enemy.xml.
+          // Process each <enemy> element from the XML.
           for (let i = 0; i < enemyNodes.length; i++) {
             const enemyEl = enemyNodes[i];
             const id = parseInt(enemyEl.getAttribute("id"));
@@ -22,7 +22,7 @@
             const baseTime = Number(enemyEl.getAttribute("baseTime"));
             const baseCost = Number(enemyEl.getAttribute("baseCost"));
 
-            // Create an enemy object with its own properties.
+            // Create an enemy object.
             const enemyObj = {
               id: id,
               name: name,
@@ -32,7 +32,7 @@
               automation: {
                 purchased: false,
                 baseTime: baseTime,
-                xpPerCycle: baseXP,  // You can adjust the automation XP reward if desired.
+                xpPerCycle: baseXP,  // You may adjust the reward if desired.
                 baseCost: baseCost
               },
               xpAccumulated: 0,
@@ -41,11 +41,11 @@
               unlocked: false
             };
 
-            // Group enemies by zone.
+            // Group enemies according to their zone.
             if (!zoneMap[zone]) {
               zoneMap[zone] = {
                 id: zone,
-                unlocked: (zone === 1), // Only zone 1 is unlocked by default.
+                unlocked: (zone === 1), // Only zone 1 unlocked initially.
                 enemies: []
               };
             }
@@ -56,7 +56,7 @@
             zoneMap[zone].enemies.push(enemyObj);
           }
 
-          // Transform the zoneMap into a sorted array and sort each zone’s enemies by id.
+          // Convert the zoneMap to an array and sort by zone id.
           zones = Object.values(zoneMap).sort((a, b) => a.id - b.id);
           zones.forEach(zone => {
             zone.enemies.sort((a, b) => a.id - b.id);
@@ -68,7 +68,7 @@
         .catch(error => console.error("Error loading enemy XML data:", error));
     }
 
-    // Render the vertical zone menu.
+    // Render the zones menu in the sidebar.
     function renderZoneMenu() {
       const menu = document.getElementById("zone-menu");
       menu.innerHTML = "";
@@ -95,28 +95,23 @@
         const enemyDiv = document.createElement("div");
         enemyDiv.className = "enemy";
 
-        // Create an XP display element.
-        const xpDisplay = document.createElement("div");
-        xpDisplay.className = "xp-display";
-        xpDisplay.textContent = "XP: " + enemy.xpAccumulated;
-        enemyDiv.appendChild(xpDisplay);
-
-        // Container for interactions related to the enemy.
+        // Create a container for the enemy details.
         const enemyContent = document.createElement("div");
         enemyContent.className = "enemy-content";
 
         if (enemy.unlocked) {
-          // Manual attack button that adds XP per click.
-          const clickBtn = document.createElement("button");
-          clickBtn.textContent = enemy.name + " (Click to attack)";
-          clickBtn.addEventListener("click", () => {
+          // Create a clickable enemy image (75x75).
+          const enemyImg = document.createElement("img");
+          enemyImg.className = "enemy-img";
+          enemyImg.src = "./img/" + enemy.name + ".png";
+          enemyImg.alt = enemy.name;
+          enemyImg.addEventListener("click", () => {
             enemy.xpAccumulated += enemy.xpPerClick;
-            xpDisplay.textContent = "XP: " + enemy.xpAccumulated;
-            // If the buy automation button exists for this enemy, update its enabled state.
-            if (autoBtn) {
+            xpEl.textContent = "XP: " + enemy.xpAccumulated;
+            if(autoBtn) { 
               autoBtn.disabled = enemy.xpAccumulated < enemy.automation.baseCost;
             }
-            // Check if the next enemy should now be unlocked.
+            // Unlock next enemy if criteria met.
             if (idx < zone.enemies.length - 1) {
               const nextEnemy = zone.enemies[idx + 1];
               if (!nextEnemy.unlocked && enemy.xpAccumulated >= nextEnemy.unlockCost) {
@@ -125,70 +120,110 @@
               }
             }
           });
-          enemyContent.appendChild(clickBtn);
+          enemyDiv.appendChild(enemyImg);
 
-          // Create a progress bar container.
+          // Create a details container to the right of the image.
+          const detailsDiv = document.createElement("div");
+          detailsDiv.className = "enemy-details";
+
+          // Top row: enemy name and XP.
+          const headerDiv = document.createElement("div");
+          headerDiv.className = "enemy-header";
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "enemy-name";
+          nameSpan.textContent = enemy.name;
+          headerDiv.appendChild(nameSpan);
+          headerDiv.appendChild(document.createElement("br"));
+          const xpEl = document.createElement("span");
+          xpEl.className = "enemy-xp";
+          xpEl.textContent = "XP: " + enemy.xpAccumulated;
+          headerDiv.appendChild(xpEl);
+          detailsDiv.appendChild(headerDiv);
+
+          // Bottom row: progress bar and automation button.
+          const progressRow = document.createElement("div");
+          progressRow.className = "progress-row";
           const progressContainer = document.createElement("div");
           progressContainer.className = "progress-container";
           const progressBar = document.createElement("div");
           progressBar.className = "progress-bar";
-
-          // Each enemy has its own automation purchase button.
-          let autoBtn = null;
-          if (!enemy.automation.purchased) {
-            autoBtn = document.createElement("button");
-            autoBtn.textContent = "Buy Automation (Cost: " + enemy.automation.baseCost + ")";
-            autoBtn.disabled = enemy.xpAccumulated < enemy.automation.baseCost;
-            autoBtn.addEventListener("click", () => {
-              if (enemy.xpAccumulated >= enemy.automation.baseCost) {
-                // Mark only this enemy's automation as purchased.
-                enemy.automation.purchased = true;
-                // Optionally subtract the automation cost:
-                // enemy.xpAccumulated -= enemy.automation.baseCost;
-                xpDisplay.textContent = "XP: " + enemy.xpAccumulated;
-                // Remove this enemy's automation button.
-                autoBtn.remove();
-                // Start the automation timer for this enemy.
-                startEnemyAutomation(enemy, xpDisplay, progressBar);
-              }
-            });
-            enemyContent.appendChild(autoBtn);
-          }
-
-          // If automation is purchased, reattach (or start) the automation timer.
           if (enemy.automation.purchased) {
-            startEnemyAutomation(enemy, xpDisplay, progressBar);
+            startEnemyAutomation(enemy, xpEl, progressBar);
           } else {
             progressBar.style.width = "0%";
             progressBar.textContent = "Not automated";
           }
           progressContainer.appendChild(progressBar);
-          enemyContent.appendChild(progressContainer);
+          progressRow.appendChild(progressContainer);
+
+          // Only if automation not purchased, add the automation button.
+          let autoBtn = null;
+          if (!enemy.automation.purchased) {
+            autoBtn = document.createElement("button");
+            autoBtn.className = "automation-btn";
+            autoBtn.textContent = "A";
+            autoBtn.disabled = enemy.xpAccumulated < enemy.automation.baseCost;
+            autoBtn.addEventListener("click", () => {
+              if (enemy.xpAccumulated >= enemy.automation.baseCost) {
+                enemy.automation.purchased = true;
+                // (Optionally subtract the cost from XP here)
+                xpEl.textContent = "XP: " + enemy.xpAccumulated;
+                autoBtn.remove();
+                startEnemyAutomation(enemy, xpEl, progressBar);
+              }
+            });
+            progressRow.appendChild(autoBtn);
+          }
+
+          detailsDiv.appendChild(progressRow);
+          enemyContent.appendChild(detailsDiv);
         } else {
-          // UI for locked enemy: show enemy info and potential unlock button.
-          enemyContent.textContent =
-            enemy.name + " (Locked – requires " + enemy.unlockCost + " XP from previous enemy)";
+          // Locked enemy layout.
+          const enemyImg = document.createElement("img");
+          enemyImg.className = "enemy-img";
+          enemyImg.src = "./img/locked.png";
+          enemyImg.alt = enemy.name;
+          enemyImg.style.opacity = "0.5";
+          enemyDiv.appendChild(enemyImg);
+
+          const detailsDiv = document.createElement("div");
+          detailsDiv.className = "enemy-details";
+          const headerDiv = document.createElement("div");
+          headerDiv.className = "enemy-header";
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "enemy-name";
+          nameSpan.textContent = enemy.name;
+          headerDiv.appendChild(nameSpan);
+          headerDiv.appendChild(document.createElement("br"));
+          const lockedSpan = document.createElement("span");
+          lockedSpan.className = "enemy-xp";
+          lockedSpan.textContent = "Locked – requires " + enemy.unlockCost + " XP";
+          headerDiv.appendChild(lockedSpan);
+          detailsDiv.appendChild(headerDiv);
+
+          // If the previous enemy has enough XP, offer an unlock button.
           if (idx > 0) {
             const prevEnemy = zone.enemies[idx - 1];
             if (prevEnemy.xpAccumulated >= enemy.unlockCost) {
               const unlockBtn = document.createElement("button");
+              unlockBtn.className = "unlock-btn";
               unlockBtn.textContent = "Unlock";
               unlockBtn.addEventListener("click", () => {
                 enemy.unlocked = true;
                 renderZoneContent();
               });
-              enemyContent.appendChild(unlockBtn);
+              detailsDiv.appendChild(unlockBtn);
             }
           }
+          enemyContent.appendChild(detailsDiv);
         }
         enemyDiv.appendChild(enemyContent);
         enemyList.appendChild(enemyDiv);
       });
     }
 
-    // Starts (or reattaches) the automation timer for a specific enemy.
-    function startEnemyAutomation(enemy, xpDisplay, progressBar) {
-      // Clear any existing interval to avoid duplicates.
+    // Starts or reattaches an individual enemy’s automation timer.
+    function startEnemyAutomation(enemy, xpEl, progressBar) {
       if (enemy.interval) {
         clearInterval(enemy.interval);
       }
@@ -201,12 +236,10 @@
         progressBar.textContent = xpPerSec + " XP/s";
         if (enemy.timerProgress >= enemy.automation.baseTime) {
           enemy.xpAccumulated += enemy.automation.xpPerCycle;
-          xpDisplay.textContent = "XP: " + enemy.xpAccumulated;
+          xpEl.textContent = "XP: " + enemy.xpAccumulated;
           enemy.timerProgress = 0;
         }
       }, updateInterval);
     }
 
-    // When the DOM is ready, load enemy data from XML.
     document.addEventListener("DOMContentLoaded", loadEnemyData);
-    

@@ -2,7 +2,7 @@
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background-color: #fafafa;
+      background-color: #282c34;
     }
     #app {
       display: flex;
@@ -11,13 +11,14 @@
     /* Sidebar for zones */
     .sidebar {
       width: 200px;
-      background: #f4f4f4;
+      background: #3a3f47;
       padding: 20px;
       border-right: 1px solid #ccc;
       box-sizing: border-box;
     }
     .sidebar h2 {
       margin-top: 0;
+      color: #b0b0b0;
     }
     .sidebar ul {
       list-style-type: none;
@@ -31,7 +32,7 @@
     .sidebar li:hover {
       background: #ddd;
     }
-    /* Main content area */
+    /* Main content (enemy list) */
     .main {
       flex: 1;
       padding: 20px;
@@ -40,52 +41,81 @@
     }
     .main h2 {
       margin-top: 0;
+      color: #b0b0b0;
     }
-    /* Enemy container styling */
+    /* Enemy container styling: a horizontal flex container */
     .enemy {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       border: 1px solid #ccc;
       margin-bottom: 10px;
       padding: 10px;
       border-radius: 4px;
       background: #fff;
     }
-    .xp-display {
-      width: 80px;
-      font-weight: bold;
-      margin-right: 20px;
+    /* The enemy clickable image remains 75x75 */
+    .enemy-img {
+      width: 75px;
+      height: 75px;
+      cursor: pointer;
     }
-    .enemy-content {
+    /* Container for enemy details (to the right of the image) */
+    .enemy-details {
+      display: flex;
+      flex-direction: column;
+      margin-left: 10px;
       flex: 1;
+      height: 75px;
     }
-    .enemy-content button {
-      margin-right: 10px;
-      padding: 5px 10px;
-      font-size: 0.9em;
+    /* Enemy header: name (aligned to top) and XP */
+    .enemy-header {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 1.2;
+      margin: 0;
     }
-    /* Progress bar styling */
+    .enemy-xp {
+      font-size: 12px;
+      color: #666;
+    }
+    /* Row below header: progress bar and unlock/automation button */
+    .progress-row {
+      display: flex;
+      align-items: center;
+      margin-top: auto;
+    }
     .progress-container {
-      display: inline-block;
-      height: 20px;
-      width: 200px;
+      width: 400px;
+      height: 30px;
       background: #e0e0e0;
       border-radius: 4px;
       overflow: hidden;
-      vertical-align: middle;
       position: relative;
-      margin-top: 10px;
     }
     .progress-bar {
       height: 100%;
       background: #76c7c0;
-      width: 0;
+      width: 0%;
       text-align: center;
+      text-indent: 5px;
       white-space: nowrap;
-      overflow: hidden;
-      transition: width 0.1s linear;
-      color: #fff;
       font-size: 0.8em;
-      line-height: 20px;
+      color: #fff;
+      line-height: 30px;
+      transition: width 0.1s linear;
+    }
+    /* Automation button: fixed 50x50, centered vertically */
+    .automation-btn,
+    .unlock-btn {
+      width: 50px;
+      height: 40px;
+      margin-left: 10px;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-size: 14px;
+      position: relative;
+      left: 5%;
+      top: 0%;
+      transform: translateY(-50%);
     }
     
